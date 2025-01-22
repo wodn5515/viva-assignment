@@ -1,0 +1,75 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:5.7
+    platform: linux/amd64
+    restart: always
+    container_name: mysql
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB_NAME}
+      MYSQL_USER: ${MYSQL_DB_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_DB_PASSWORD}
+      TZ: Asia/Seoul
+    volumes:
+      - mysql_db:/var/lib/mysql
+      - ./mysql/conf.d/:/etc/mysql/conf.d
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+  mongo:
+    image: mongo:6.0.20
+    container_name: mongo
+    env_file: .env
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DB_NAME}
+      - MONGO_INITDB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_INITDB_PASSWORD=${MONGO_DB_PASSWORD}
+    volumes:
+      - mongo_db:/data/db
+      - mongo_config:/data/configdb
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    env_file: .env
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_DB_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_DB_PASSWORD}
+      ME_CONFIG_MONGODB_URL: ${MONGO_DB_URL}
+      ME_CONFIG_BASICAUTH: true
+    depends_on:
+      - mongo
+  web:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: web
+    env_file: .env
+    restart: always
+    ports:
+      - 8000:8000
+    command: >
+      sh -c "python manage.py migrate &&
+              python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./:/app
+    depends_on:
+      - mongo
+      - mysql
+
+networks:
+  default:
+
+volumes:
+  mysql_db:
+  mongo_db:
+  mongo_config:

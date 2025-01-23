@@ -5,7 +5,7 @@ from django.contrib.auth.models import (
 )
 from django.db import models
 
-from common.models import TimeStampedModel
+from apps.common.models import TimeStampedModel
 
 
 class UserManager(BaseUserManager):
@@ -51,4 +51,4 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
 
     class Meta:
         db_table = "users"
-        app_label = "users"
+        app_label = "accounts"

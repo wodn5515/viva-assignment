@@ -22,6 +22,7 @@ class DBRouter:
         return None
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
-        if app_label in self.route_app_labels:
-            return db == self.db_name
-        return None
+        if db == self.db_name:
+            return app_label in self.route_app_labels
+        else:
+            return app_label not in self.route_app_labels

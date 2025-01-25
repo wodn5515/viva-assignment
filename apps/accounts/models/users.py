@@ -51,4 +51,3 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
 
     class Meta:
         db_table = "users"
-        app_label = "accounts"

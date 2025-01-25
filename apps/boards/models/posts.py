@@ -8,4 +8,3 @@ class Post(TimeStampedModel):
 
     class Meta:
         db_table = "posts"
-        app_label = "boards"

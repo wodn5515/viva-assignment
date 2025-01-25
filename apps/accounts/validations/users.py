@@ -3,7 +3,7 @@ from pydantic_core import PydanticCustomError
 from apps.accounts.validations.exceptions import PasswordNotMatched
 
 
-class SignUp(BaseModel):
+class SignUpEntity(BaseModel):
     email: EmailStr
     name: str
     password: str
@@ -16,6 +16,10 @@ class SignUp(BaseModel):
         return self
 
 
-class Login(BaseModel):
+class LoginEntity(BaseModel):
     email: EmailStr
     password: str
+
+
+class RefreshTokenEntity(BaseModel):
+    refresh: str

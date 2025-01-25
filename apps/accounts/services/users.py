@@ -1,6 +1,10 @@
 from apps.common.services import BaseService
 from apps.accounts.models.users import User
-from apps.accounts.validations.users import SignUp, Login
+from apps.accounts.validations.users import (
+    SignUpEntity,
+    LoginEntity,
+    RefreshTokenEntity,
+)
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from apps.accounts.validations import exceptions
@@ -9,7 +13,7 @@ from apps.accounts.validations import exceptions
 class SignUpService(BaseService):
     model = User
 
-    def create_user(self, data: SignUp) -> dict:
+    def create_user(self, data: SignUpEntity) -> dict:
         user = User(email=data.email, name=data.name)
         user.set_password(data.password)
         user.save()
@@ -30,10 +34,8 @@ class SignUpService(BaseService):
         return data
 
 
-class LoginService(BaseService):
-    model = User
-
-    def login(self, data: Login):
+class LoginService:
+    def login(self, data: LoginEntity):
         user = authenticate(email=data.email, password=data.password)
         if user is not None:
             refresh = RefreshToken.for_user(user)
@@ -64,3 +66,16 @@ class LoginService(BaseService):
         data = {"refresh": str(token), "access": str(token.access_token)}
 
         return data
+
+
+class TokenRefreshService:
+    def refresh(self, data: RefreshTokenEntity):
+        refresh = RefreshToken(data.refresh)
+        response_data = {"access": str(refresh.access_token)}
+        return response_data
+
+
+class LogoutService:
+    def logout(self, data: RefreshTokenEntity):
+        refresh = RefreshToken(data.refresh)
+        refresh.blacklist()

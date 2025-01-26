@@ -2,7 +2,6 @@ from django.test import TestCase
 from apps.accounts.models.users import User
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.test import APIClient
 
 
 class AccountTestCase(TestCase):

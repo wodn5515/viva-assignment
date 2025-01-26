@@ -8,7 +8,7 @@ from apps.boards.validations import exceptions
 from apps.boards.validations import exception_data
 from apps.utils import exceptions as response_exceptions
 from apps.utils import exception_data as common_exception_data
-from apps.boards.services.posts import CreatePostService, RetrievePostsService
+from apps.boards.services.posts import PostService
 
 POST_PAGE_SIZE = 10
 
@@ -31,8 +31,8 @@ class PostCreateRetrieveView(APIView):
             queryset_kwargs["author_id"] = author_id
 
         # service
-        retrieve_posts_service = RetrievePostsService()
-        response_data = retrieve_posts_service.get_queryset(**queryset_kwargs)
+        post_service = PostService()
+        response_data = post_service.get_queryset(**queryset_kwargs)
 
         return Response(status=status.HTTP_200_OK, data=response_data)
 
@@ -53,11 +53,20 @@ class PostCreateRetrieveView(APIView):
             )
 
         # service
-        create_post_service = CreatePostService()
-        response_data = create_post_service.create_post(data=data)
+        post_service = PostService()
+        response_data = post_service.create_post(data=data)
 
         return Response(status=status.HTTP_201_CREATED, data=response_data)
 
 
 class PostDetailUpdateDeleteView(APIView):
-    pass
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get(self, request, *args, **kwargs):
+        post_id = kwargs.get("post_id")
+
+        # service
+        post_service = PostService()
+        response_data = post_service.get_instance_by_id(id=post_id)
+
+        return Response(status=status.HTTP_200_OK, data=response_data)

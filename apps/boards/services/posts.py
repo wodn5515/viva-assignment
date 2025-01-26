@@ -4,18 +4,18 @@ from apps.boards.validations.posts import CreatePost
 from apps.boards.validations import exceptions
 
 
-class CreatePostService(BaseService):
+class PostService(BaseService):
     model = Post
 
     def create_post(self, data: CreatePost) -> dict:
         post = Post(title=data.title, content=data.content, author_id=data.author_id)
         post.save()
 
-        response_data = self._response_data_serializer(post=post)
+        response_data = self._instance_serializer(post=post)
 
         return response_data
 
-    def _response_data_serializer(self, post: Post) -> dict:
+    def _instance_serializer(self, post: Post) -> dict:
         data = {
             "id": post.pk,
             "title": post.title,
@@ -26,21 +26,6 @@ class CreatePostService(BaseService):
         }
         return data
 
-
-class RetrievePostsService(BaseService):
-    model = Post
-
-    def _get_response_data(self, queryset):
-        results = [self._get_post_data(post) for post in queryset]
+    def _list_data_serializer(self, queryset):
+        results = [self._instance_serializer(post) for post in queryset]
         return {"results": results}
-
-    def _get_post_data(self, post: Post) -> dict:
-        data = {
-            "id": post.pk,
-            "title": post.title,
-            "content": post.content,
-            "author_id": post.author_id,
-            "created_at": post.created_at,
-            "updated_at": post.updated_at,
-        }
-        return data

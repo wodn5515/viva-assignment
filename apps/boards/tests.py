@@ -156,3 +156,58 @@ class PostTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["id"], post.pk)
         self.assertEqual(response.data["content"], post.content)
+
+    def test_delete_post(self):
+        # 게시글 더미데이터 생성
+        self.create_dummy_posts()
+
+        # 내 게시글
+        # 삭제할 게시글
+        post = Post.objects.filter(author_id=self.user1.pk).first()
+
+        # 게시글 삭제
+        path = f"/posts/{post.pk}"
+        self.client.force_login(user=self.user1)
+        response = self.client.delete(path=path)
+
+        # 검증
+        self.assertEqual(response.status_code, 204)
+
+        # 게시글이 삭제되었는지 확인
+        response = self.client.get(path=path)
+
+        # 검증
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.data["code"], "POST_NOT_FOUND")
+
+        # 타인의 게시글
+        # 삭제할 게시글
+        post = Post.objects.filter(author_id=self.user2.pk).first()
+
+        # 게시글 삭제
+        path = f"/posts/{post.pk}"
+        response = self.client.delete(path=path)
+
+        # 검증
+        self.assertEqual(response.status_code, 403)
+
+        # 게시글이 삭제되지않았는지 확인
+        response = self.client.get(path=path)
+
+        # 검증
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["id"], post.pk)
+
+        # 비로그인시
+        self.client.logout()
+        response = self.client.delete(path=path)
+
+        # 검증
+        self.assertEqual(response.status_code, 403)
+
+        # 게시글이 삭제되지않았는지 확인
+        response = self.client.get(path=path)
+
+        # 검증
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["id"], post.pk)

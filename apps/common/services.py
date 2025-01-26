@@ -14,8 +14,7 @@ class BaseService:
         return instance
 
     def update_object(self, id: int, filter: dict, **kwargs):
-        instance = self.model.objects.filter(id=id, **filter).update(**kwargs)
-        return instance
+        self.model.objects.filter(id=id, **filter).update(**kwargs)
 
     def soft_delete_by_id(self, id: int):
         self.model.objects.filter(id=id).update(

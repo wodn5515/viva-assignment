@@ -13,13 +13,14 @@ class BaseService:
             raise NotFound()
         return instance
 
+    def update_object(self, id: int, filter: dict, **kwargs):
+        instance = self.model.objects.filter(id=id, **filter).update(**kwargs)
+        return instance
+
     def soft_delete_by_id(self, id: int):
         self.model.objects.filter(id=id).update(
             is_deleted=True, deleted_at=datetime.now()
         )
-
-    def soft_delete_by_id_for_mongo(self, id: int):
-        self.model.objects.filter(id=id).update(is_deleted=1, deleted_at=datetime.now())
 
     def hard_delete_by_id(self, id: int):
         self.model.objects.filter(id=id).delete()

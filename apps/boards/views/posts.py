@@ -89,3 +89,20 @@ class PostDetailUpdateDeleteView(APIView):
             raise response_exceptions.NotFound(**exception_data.HTTP_404_POST_NOT_FOUND)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def patch(self, request, *args, **kwargs):
+        request_data = request.data
+        post_id = kwargs.get("posts_id")
+        user = self.request.user
+
+        # service
+        try:
+            post_service = PostService()
+            post_service.check_ownership(
+                user_id=user.pk, instance_id=post_id, user_field="author_id"
+            )
+            response_data = post_service.update_post(id=post_id, **request_data)
+        except response_exceptions.NotFound:
+            raise response_exceptions.NotFound(**exception_data.HTTP_404_POST_NOT_FOUND)
+
+        return Response(status=status.HTTP_200_OK, data=response_data)

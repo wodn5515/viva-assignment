@@ -29,7 +29,8 @@ class PostService(BaseService):
 
     def update_post(self, id: int, **kwargs):
         orm_filter = {"is_deleted__in": [False]}
-        instance = self.update_object(id=id, filter=orm_filter, **kwargs)
+        self.update_object(id=id, filter=orm_filter, **kwargs)
+        instance = self.get_object(id=id, **orm_filter)
         response_data = self._instance_serializer(instance)
         return response_data
 

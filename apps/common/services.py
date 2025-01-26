@@ -1,7 +1,10 @@
 from django.db.models.base import ModelBase
+from django.conf import settings
 
 
 class BaseService:
+    page_size = settings.DEFAULT_PAGE_SIZE
+
     def get_instance_by_id(self, id: int):
         return self.model.objects.get(id=id)
 
@@ -12,14 +15,20 @@ class BaseService:
         self.model.objects.filter(id=id).delete()
 
     def get_queryset(
-        self, page: int | None, page_size: int, order_by: str | None, **filter
+        self, page: int = 1, page_size: int = None, order_by: str = "-id", **filter
     ):
-        queryset = self.models.objects.filter(**filter)
+        if not page_size:
+            page_size = self.page_size
+
+        queryset = self.model.objects.filter(**filter)
         if order_by:
             queryset = queryset.order_by(order_by)
-        start, end = 0, page_size
-        if page:
-            start = (page - 1) * page_size
-            end = page * page_size
 
-        return queryset[start:end]
+        start = (page - 1) * page_size
+        end = page * page_size
+
+        queryset = queryset[start:end]
+
+        response_data = self._get_response_data(queryset)
+
+        return response_data

@@ -25,3 +25,22 @@ class CreatePostService(BaseService):
             "updated_at": post.updated_at,
         }
         return data
+
+
+class RetrievePostsService(BaseService):
+    model = Post
+
+    def _get_response_data(self, queryset):
+        results = [self._get_post_data(post) for post in queryset]
+        return {"results": results}
+
+    def _get_post_data(self, post: Post) -> dict:
+        data = {
+            "id": post.pk,
+            "title": post.title,
+            "content": post.content,
+            "author_id": post.author_id,
+            "created_at": post.created_at,
+            "updated_at": post.updated_at,
+        }
+        return data

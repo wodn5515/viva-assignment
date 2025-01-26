@@ -17,7 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from apps.accounts.urls import urlpatterns as account_urlpatterns
+from apps.boards.urls import urlpatterns as board_urlpatterns
 
-urlpatterns = [
-    path("admin/", admin.site.urls),
-] + account_urlpatterns
+urlpatterns = (
+    [
+        path("admin/", admin.site.urls),
+    ]
+    + account_urlpatterns
+    + board_urlpatterns
+)

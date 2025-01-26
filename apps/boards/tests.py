@@ -1,33 +1,62 @@
-from django.contrib.auth.models import User
 from django.test import TestCase
+from apps.accounts.models.users import User
 
 
 class PostTestCase(TestCase):
-
     @classmethod
     def setUp(cls) -> None:
-        cls.user_1 = User.objects.create(username="user_1")
-
-    def test_댓글_목록을_조회한다(self):
-        # 애니메이션 댓글 생성
-        comment = Comment.objects.create(
-            user=self.user_1, animation=self.ani_1, content="댓글 내용"
+        cls.user1 = cls.create_user(
+            cls, email="test1@test.com", name="테스트1", password="testpassword1"
         )
-        reported_comment = Comment.objects.create(
-            user=self.user_2, animation=self.ani_1, content="댓글 내용"
+        cls.user2 = cls.create_user(
+            cls, email="test2@test.com", name="테스트2", password="testpassword2"
         )
-        # 댓글 신고 3회
-        comment_reports = [
-            CommentReport(comment=reported_comment, user=user, report_type="normal")
-            for user in User.objects.all()
-        ]
-        CommentReport.objects.bulk_create(comment_reports)
+        cls.user3 = cls.create_user(
+            cls, email="test3@test.com", name="테스트3", password="testpassword3"
+        )
+        cls.user4 = cls.create_user(
+            cls, email="test4@test.com", name="테스트4", password="testpassword4"
+        )
+        cls.user5 = cls.create_user(
+            cls, email="test5@test.com", name="테스트5", password="testpassword5"
+        )
 
-        # 해당 애니메이션 댓글 목록 확인
-        path = f"/comments?animation-id={self.ani_1.id}"
-        response = self.client.get(path=path, content_type="application/json")
+    def create_user(self, email, name, password):
+        user = User(email=email, name=name)
+        user.set_password(raw_password=password)
+        user.save()
+        return user
 
-        # 애니메이션과 연결된 댓글이 1개 존재한다. (신고수가 3개 이상인 댓글은 조회 목록에서 제외)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["id"], comment.id)
+    def test_create_post_with_login(self):
+        # 게시글 정보
+        title = "test post title"
+        content = "Lorem ipsum dolor"
+
+        # 게시글 작성
+        path = "/posts"
+        request_data = {"title": title, "content": content}
+        self.client.force_login(user=self.user1)
+        response = self.client.post(
+            path=path, data=request_data, content_type="application/json"
+        )
+
+        # 검증
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["title"], title)
+        self.assertEqual(response.data["content"], content)
+        self.assertEqual(response.data["author_id"], self.user1.pk)
+
+    def test_create_post_without_login(self):
+        # 게시글 정보
+        title = "test post title"
+        content = "Lorem ipsum dolor"
+
+        # 게시글 작성
+        path = "/posts"
+        request_data = {"title": title, "content": content}
+        response = self.client.post(
+            path=path, data=request_data, content_type="application/json"
+        )
+
+        # 검증
+        self.assertEqual(response.status_code, 401)

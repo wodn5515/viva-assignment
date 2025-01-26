@@ -6,7 +6,9 @@ class BaseService:
     page_size = settings.DEFAULT_PAGE_SIZE
 
     def get_instance_by_id(self, id: int):
-        return self.model.objects.get(id=id)
+        instance = self.model.objects.get(id=id)
+        response_data = self._instance_serializer(instance)
+        return response_data
 
     def soft_delete_by_id(self, id: int):
         self.model.objects.filter(id=id).update(is_deleted=True)
@@ -29,6 +31,6 @@ class BaseService:
 
         queryset = queryset[start:end]
 
-        response_data = self._get_response_data(queryset)
+        response_data = self._list_data_serializer(queryset)
 
         return response_data

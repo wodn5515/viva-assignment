@@ -1,5 +1,7 @@
 from django.test import TestCase
 from apps.accounts.models.users import User
+from apps.boards.models.posts import Post
+from apps.boards.views.posts import POST_PAGE_SIZE
 
 
 class PostTestCase(TestCase):
@@ -22,12 +24,26 @@ class PostTestCase(TestCase):
         cls.user5 = cls.create_user(
             cls, email="test5@test.com", name="테스트5", password="testpassword5"
         )
+        cls.users = [cls.user1, cls.user2, cls.user3, cls.user4, cls.user5]
 
     def create_user(self, email, name, password):
         user = User(email=email, name=name)
         user.set_password(raw_password=password)
         user.save()
         return user
+
+    def create_dummy_posts(self):
+        posts = []
+        for i in range(40):
+            post = Post(
+                title=f"test post title{i}",
+                content=f"Lorem ipsum dolor{i}",
+                user=self.users[i % len(self.users)],
+            )
+            posts.append(post)
+
+        Post.objects.bulk_create(posts)
+        return posts
 
     def test_create_post_with_login(self):
         # 게시글 정보
@@ -62,3 +78,65 @@ class PostTestCase(TestCase):
 
         # 검증
         self.assertEqual(response.status_code, 401)
+
+    def test_retrieve_posts(self):
+        # 게시글 더미데이터 생성
+        self.create_dummy_posts()
+
+        # default
+        # 게시글 조회
+        page_size = POST_PAGE_SIZE
+        path = "/posts"
+        response = self.client.get(path=path, content_type="application/json")
+
+        # 검증용 데이터
+        post = Post.objects.order_by("-id").first()
+
+        # 검증
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), page_size)
+        self.assertEqual(response.data[0]["id"], post.pk)
+        self.assertEqual(response.data[0]["content"], post.content)
+
+        # page filter
+        # 게시글 조회
+        page_size = 5
+        page = 2
+        path = f"/posts?page={page}&page-size={page_size}"
+        response = self.client.get(path=path, content_type="application/json")
+
+        # 검증용 데이터
+        post_set = Post.objects.order_by("-id")[5:10]
+
+        # 검증
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), page_size)
+        self.assertEqual(response.data[0]["id"], post_set[0].pk)
+        self.assertEqual(response.data[0]["content"], post_set[0].content)
+
+        # author_id filter
+        # 게시글 조회
+        author_id = self.user1.pk
+        page_size = POST_PAGE_SIZE
+        path = f"/posts?author-id={author_id}&page_size={page_size}"
+        response = self.client.get(path=path, content_type="application/json")
+
+        # 검증용 데이터
+        post_set = Post.objects.filter(author_id=author_id).order_by("-id")[:page_size]
+
+        # 검증
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), len(post_set))
+        self.assertEqual(response.data[0]["id"], post_set[0].pk)
+        self.assertEqual(response.data[0]["content"], post_set[0].content)
+
+        # page 초과시
+        # 게시글 조회
+        page_size = POST_PAGE_SIZE
+        page = 100
+        path = f"/posts?page={page}&page-size={page_size}"
+        response = self.client.get(path=path, content_type="application/json")
+
+        # 검증
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 0)

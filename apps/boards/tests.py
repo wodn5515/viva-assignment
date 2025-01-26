@@ -203,7 +203,7 @@ class PostTestCase(TestCase):
         response = self.client.delete(path=path)
 
         # 검증
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
         # 게시글이 삭제되지않았는지 확인
         response = self.client.get(path=path)

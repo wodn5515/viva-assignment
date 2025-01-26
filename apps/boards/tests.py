@@ -8,7 +8,8 @@ class PostTestCase(TestCase):
     databases = "__all__"
 
     @classmethod
-    def setUp(cls) -> None:
+    def setUpTestData(cls) -> None:
+        # 유저 더미데이터 생성
         cls.user1 = cls.create_user(
             cls, email="test1@test.com", name="테스트1", password="testpassword1"
         )
@@ -84,7 +85,7 @@ class PostTestCase(TestCase):
         self.create_dummy_posts()
 
         # default
-        # 게시글 조회
+        # 게시글 목록 조회
         page_size = POST_PAGE_SIZE
         path = "/posts"
         response = self.client.get(path=path, content_type="application/json")
@@ -99,7 +100,7 @@ class PostTestCase(TestCase):
         self.assertEqual(response.data["results"][0]["content"], post.content)
 
         # page filter
-        # 게시글 조회
+        # 게시글 목록 조회
         page_size = 5
         page = 2
         path = f"/posts?page={page}&page-size={page_size}"
@@ -115,7 +116,7 @@ class PostTestCase(TestCase):
         self.assertEqual(response.data["results"][0]["content"], post_set[0].content)
 
         # author_id filter
-        # 게시글 조회
+        # 게시글 목록 조회
         author_id = self.user1.pk
         page_size = POST_PAGE_SIZE
         path = f"/posts?author-id={author_id}&page_size={page_size}"
@@ -131,7 +132,7 @@ class PostTestCase(TestCase):
         self.assertEqual(response.data["results"][0]["content"], post_set[0].content)
 
         # page 초과시
-        # 게시글 조회
+        # 게시글 목록 조회
         page_size = POST_PAGE_SIZE
         page = 100
         path = f"/posts?page={page}&page-size={page_size}"
@@ -140,3 +141,18 @@ class PostTestCase(TestCase):
         # 검증
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data["results"]), 0)
+
+    def test_read_post(self):
+        # 게시글 더미데이터 생성
+        self.create_dummy_posts()
+
+        # 검증용 데이터
+        post = Post.objects.first()
+        # 게시글 조회
+        path = f"/posts/{post.pk}"
+        response = self.client.get(path=path, content_type="application/json")
+
+        # 검증
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["id"], post.pk)
+        self.assertEqual(response.data["content"], post.content)

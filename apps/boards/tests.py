@@ -233,7 +233,7 @@ class PostTestCase(TestCase):
         updated_title = f"test update title {post.pk}"
         updated_content = f"update Lorem ipsum dolor {post.pk}"
         path = f"/posts/{post.pk}"
-        request_data = {"title": updated_title}
+        request_data = {"title": updated_title, "content": updated_content}
         response = self.client.patch(
             path=path, data=request_data, content_type="application/json"
         )
@@ -252,8 +252,9 @@ class PostTestCase(TestCase):
 
         # 게시글 수정
         updated_title = f"test update title {post.pk}"
+        updated_content = f"update Lorem ipsum dolor {post.pk}"
         path = f"/posts/{post.pk}"
-        request_data = {"title": updated_title}
+        request_data = {"title": updated_title, "content": updated_content}
         response = self.client.patch(
             path=path, data=request_data, content_type="application/json"
         )
@@ -266,15 +267,16 @@ class PostTestCase(TestCase):
 
         # 검증
         self.assertEqual(response.status_code, 200)
-        self.assertNotEqual(response.data["title"], updated_title)
+        self.assertNotEqual(response.data["title"], updated_title)
 
         # 비로그인시
         # 로그아웃
         self.client.logout()
         # 게시글 수정
         updated_title = f"test update title {post.pk}"
+        updated_content = f"update Lorem ipsum dolor {post.pk}"
         path = f"/posts/{post.pk}"
-        request_data = {"title": updated_title}
+        request_data = {"title": updated_title, "content": updated_content}
         response = self.client.patch(
             path=path, data=request_data, content_type="application/json"
         )
@@ -287,4 +289,4 @@ class PostTestCase(TestCase):
 
         # 검증
         self.assertEqual(response.status_code, 200)
-        self.assertNotEqual(response.data["title"], updated_title)
+        self.assertNotEqual(response.data["title"], updated_title)

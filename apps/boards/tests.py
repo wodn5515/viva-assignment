@@ -211,3 +211,70 @@ class PostTestCase(TestCase):
         # 검증
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["id"], post.pk)
+
+    def test_update_post(self):
+        # 게시글 더미데이터 생성
+        self.create_dummy_posts()
+
+        # 로그인
+        self.client.force_login(user=self.user1)
+
+        # 내 게시글
+        # 수정할 게시글
+        post = Post.objects.filter(author_id=self.user1.pk).first()
+
+        # 게시글 수정
+        updated_title = f"test update title {post.pk}"
+        path = f"/posts/{post.pk}"
+        request_data = {"title": updated_title}
+        response = self.client.patch(
+            path=path, data=request_data, content_type="application/json"
+        )
+
+        # 검증
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["title"], updated_title)
+        self.assertNotEqual(response.data["created_at"], response.data["updated_at"])
+
+        # 타인의 게시글
+        # 수정할 게시글
+        post = Post.objects.filter(author_id=self.user2.pk).first()
+
+        # 게시글 수정
+        updated_title = f"test update title {post.pk}"
+        path = f"/posts/{post.pk}"
+        request_data = {"title": updated_title}
+        response = self.client.patch(
+            path=path, data=request_data, content_type="application/json"
+        )
+
+        # 검증
+        self.assertEqual(response.status_code, 403)
+
+        # 게시글이 수정되지않았는지 확인
+        response = self.client.get(path=path)
+
+        # 검증
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(response.data["title"], updated_title)
+
+        # 비로그인시
+        # 로그아웃
+        self.client.logout()
+        # 게시글 수정
+        updated_title = f"test update title {post.pk}"
+        path = f"/posts/{post.pk}"
+        request_data = {"title": updated_title}
+        response = self.client.patch(
+            path=path, data=request_data, content_type="application/json"
+        )
+
+        # 검증
+        self.assertEqual(response.status_code, 401)
+
+        # 게시글이 수정되지않았는지 확인
+        response = self.client.get(path=path)
+
+        # 검증
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(response.data["title"], updated_title)

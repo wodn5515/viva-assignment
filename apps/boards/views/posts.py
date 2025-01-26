@@ -9,6 +9,7 @@ from apps.boards.validations import exception_data
 from apps.utils import exceptions as response_exceptions
 from apps.utils import exception_data as common_exception_data
 from apps.boards.services.posts import PostService
+from datetime import datetime
 
 POST_PAGE_SIZE = 10
 
@@ -92,6 +93,7 @@ class PostDetailUpdateDeleteView(APIView):
 
     def patch(self, request, *args, **kwargs):
         request_data = request.data
+        request_data["updated_at"] = datetime.now()
         post_id = kwargs.get("post_id")
         user = self.request.user
 

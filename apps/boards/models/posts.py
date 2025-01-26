@@ -6,6 +6,8 @@ class Post(DjongoTimeStampedModel):
     title = models.CharField(max_length=256)
     content = models.TextField()
     author_id = models.IntegerField(db_index=True)
+    is_deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True)
 
     class Meta:
         db_table = "posts"

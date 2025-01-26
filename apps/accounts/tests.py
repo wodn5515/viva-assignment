@@ -6,7 +6,6 @@ from rest_framework.test import APIClient
 
 
 class AccountTestCase(TestCase):
-
     def test_signup(self):
         # 유저 정보
         email = "test@test.com"

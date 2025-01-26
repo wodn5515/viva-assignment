@@ -3,6 +3,8 @@ from apps.accounts.models.users import User
 
 
 class PostTestCase(TestCase):
+    databases = "__all__"
+
     @classmethod
     def setUp(cls) -> None:
         cls.user1 = cls.create_user(

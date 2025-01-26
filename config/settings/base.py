@@ -106,6 +106,8 @@ DATABASE_ROUTERS = ["config.db_router.DBRouter"]
 
 AUTH_USER_MODEL = "accounts.User"
 
+DEFAULT_PAGE_SIZE = 10
+
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 

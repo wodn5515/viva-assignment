@@ -38,7 +38,7 @@ class PostTestCase(TestCase):
             post = Post(
                 title=f"test post title{i}",
                 content=f"Lorem ipsum dolor{i}",
-                user=self.users[i % len(self.users)],
+                author_id=self.users[i % len(self.users)].pk,
             )
             posts.append(post)
 
@@ -94,9 +94,9 @@ class PostTestCase(TestCase):
 
         # 검증
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), page_size)
-        self.assertEqual(response.data[0]["id"], post.pk)
-        self.assertEqual(response.data[0]["content"], post.content)
+        self.assertEqual(len(response.data["results"]), page_size)
+        self.assertEqual(response.data["results"][0]["id"], post.pk)
+        self.assertEqual(response.data["results"][0]["content"], post.content)
 
         # page filter
         # 게시글 조회
@@ -110,9 +110,9 @@ class PostTestCase(TestCase):
 
         # 검증
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), page_size)
-        self.assertEqual(response.data[0]["id"], post_set[0].pk)
-        self.assertEqual(response.data[0]["content"], post_set[0].content)
+        self.assertEqual(len(response.data["results"]), page_size)
+        self.assertEqual(response.data["results"][0]["id"], post_set[0].pk)
+        self.assertEqual(response.data["results"][0]["content"], post_set[0].content)
 
         # author_id filter
         # 게시글 조회
@@ -126,9 +126,9 @@ class PostTestCase(TestCase):
 
         # 검증
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), len(post_set))
-        self.assertEqual(response.data[0]["id"], post_set[0].pk)
-        self.assertEqual(response.data[0]["content"], post_set[0].content)
+        self.assertEqual(len(response.data["results"]), len(post_set))
+        self.assertEqual(response.data["results"][0]["id"], post_set[0].pk)
+        self.assertEqual(response.data["results"][0]["content"], post_set[0].content)
 
         # page 초과시
         # 게시글 조회
@@ -139,4 +139,4 @@ class PostTestCase(TestCase):
 
         # 검증
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 0)
+        self.assertEqual(len(response.data["results"]), 0)

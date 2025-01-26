@@ -92,7 +92,7 @@ class PostDetailUpdateDeleteView(APIView):
 
     def patch(self, request, *args, **kwargs):
         request_data = request.data
-        post_id = kwargs.get("posts_id")
+        post_id = kwargs.get("post_id")
         user = self.request.user
 
         # service

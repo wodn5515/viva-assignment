@@ -3,6 +3,7 @@ from rest_framework import exceptions
 from apps.utils import exceptions as custom_exceptions
 from django.core.exceptions import PermissionDenied
 from rest_framework_simplejwt.exceptions import InvalidToken, AuthenticationFailed
+from rest_framework.exceptions import NotAuthenticated
 from rest_framework.views import set_rollback
 from rest_framework.response import Response
 
@@ -12,7 +13,7 @@ def custom_exception_handler(exc, context):
         exc = custom_exceptions.NotFound()
     elif isinstance(exc, PermissionDenied):
         exc = custom_exceptions.PermissionDenied()
-    elif isinstance(exc, InvalidToken) or isinstance(exc, AuthenticationFailed):
+    elif isinstance(exc, (InvalidToken, AuthenticationFailed, NotAuthenticated)):
         exc = custom_exceptions.NotAuthenticated()
 
     if isinstance(exc, exceptions.APIException):

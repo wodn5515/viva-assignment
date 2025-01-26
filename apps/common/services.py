@@ -1,20 +1,33 @@
-from django.db.models.base import ModelBase
+from apps.utils.exceptions import NotFound, PermissionDenied
 from django.conf import settings
+from datetime import datetime
 
 
 class BaseService:
     page_size = settings.DEFAULT_PAGE_SIZE
 
-    def get_instance_by_id(self, id: int):
-        instance = self.model.objects.get(id=id)
-        response_data = self._instance_serializer(instance)
-        return response_data
+    def get_object(self, id: int, **filter):
+        try:
+            instance = self.model.objects.filter(**filter).get(id=id)
+        except self.model.DoesNotExist:
+            raise NotFound()
+        return instance
 
     def soft_delete_by_id(self, id: int):
-        self.model.objects.filter(id=id).update(is_deleted=True)
+        self.model.objects.filter(id=id).update(
+            is_deleted=True, deleted_at=datetime.now()
+        )
+
+    def soft_delete_by_id_for_mongo(self, id: int):
+        self.model.objects.filter(id=id).update(is_deleted=1, deleted_at=datetime.now())
 
     def hard_delete_by_id(self, id: int):
         self.model.objects.filter(id=id).delete()
+
+    def check_ownership(self, user_id: int, instance_id: int, user_field: str):
+        instance = self.get_object(id=instance_id)
+        if user_id != getattr(instance, user_field):
+            raise PermissionDenied
 
     def get_queryset(
         self, page: int = 1, page_size: int = None, order_by: str = "-id", **filter
@@ -29,8 +42,4 @@ class BaseService:
         start = (page - 1) * page_size
         end = page * page_size
 
-        queryset = queryset[start:end]
-
-        response_data = self._list_data_serializer(queryset)
-
-        return response_data
+        return queryset[start:end]

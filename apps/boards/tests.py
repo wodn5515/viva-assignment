@@ -225,6 +225,7 @@ class PostTestCase(TestCase):
 
         # 게시글 수정
         updated_title = f"test update title {post.pk}"
+        updated_content = f"update Lorem ipsum dolor {post.pk}"
         path = f"/posts/{post.pk}"
         request_data = {"title": updated_title}
         response = self.client.patch(
@@ -234,6 +235,7 @@ class PostTestCase(TestCase):
         # 검증
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["title"], updated_title)
+        self.assertEqual(response.data["content"], updated_content)
         self.assertNotEqual(response.data["created_at"], response.data["updated_at"])
 
         # 타인의 게시글

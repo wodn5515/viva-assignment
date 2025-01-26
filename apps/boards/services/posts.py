@@ -16,14 +16,20 @@ class PostService(BaseService):
         return response_data
 
     def get_post_set(self, **filter):
-        filter["is_deleted"] = 0
+        filter["is_deleted__in"] = [False]
         queryset = self.get_queryset(**filter)
         response_data = self._list_data_serializer(queryset)
         return response_data
 
     def get_post(self, id: int):
-        orm_filter = {"is_deleted": 0}
+        orm_filter = {"is_deleted__in": [False]}
         instance = self.get_object(id=id, **orm_filter)
+        response_data = self._instance_serializer(instance)
+        return response_data
+
+    def update_post(self, id: int, **kwargs):
+        orm_filter = {"is_deleted__in": [False]}
+        instance = self.update_object(id=id, filter=orm_filter, **kwargs)
         response_data = self._instance_serializer(instance)
         return response_data
 

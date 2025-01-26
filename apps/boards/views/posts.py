@@ -32,7 +32,7 @@ class PostCreateRetrieveView(APIView):
 
         # service
         post_service = PostService()
-        response_data = post_service.get_queryset(**queryset_kwargs)
+        response_data = post_service.get_post_set(**queryset_kwargs)
 
         return Response(status=status.HTTP_200_OK, data=response_data)
 
@@ -66,7 +66,26 @@ class PostDetailUpdateDeleteView(APIView):
         post_id = kwargs.get("post_id")
 
         # service
-        post_service = PostService()
-        response_data = post_service.get_instance_by_id(id=post_id)
+        try:
+            post_service = PostService()
+            response_data = post_service.get_post(id=post_id)
+        except response_exceptions.NotFound:
+            raise response_exceptions.NotFound(**exception_data.HTTP_404_POST_NOT_FOUND)
 
         return Response(status=status.HTTP_200_OK, data=response_data)
+
+    def delete(self, request, *args, **kwargs):
+        post_id = kwargs.get("post_id")
+        user = self.request.user
+
+        # service
+        try:
+            post_service = PostService()
+            post_service.check_ownership(
+                user_id=user.pk, instance_id=post_id, user_field="author_id"
+            )
+            post_service.soft_delete_by_id(id=post_id)
+        except response_exceptions.NotFound:
+            raise response_exceptions.NotFound(**exception_data.HTTP_404_POST_NOT_FOUND)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)

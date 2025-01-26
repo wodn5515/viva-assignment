@@ -163,7 +163,9 @@ class PostTestCase(TestCase):
 
         # 내 게시글
         # 삭제할 게시글
-        post = Post.objects.filter(author_id=self.user1.pk).first()
+        post = Post.objects.filter(
+            author_id=self.user1.pk, is_deleted__in=[False]
+        ).first()
 
         # 게시글 삭제
         path = f"/posts/{post.pk}"
@@ -182,7 +184,9 @@ class PostTestCase(TestCase):
 
         # 타인의 게시글
         # 삭제할 게시글
-        post = Post.objects.filter(author_id=self.user2.pk).first()
+        post = Post.objects.filter(
+            author_id=self.user2.pk, is_deleted__in=[False]
+        ).first()
 
         # 게시글 삭제
         path = f"/posts/{post.pk}"
@@ -221,7 +225,9 @@ class PostTestCase(TestCase):
 
         # 내 게시글
         # 수정할 게시글
-        post = Post.objects.filter(author_id=self.user1.pk).first()
+        post = Post.objects.filter(
+            author_id=self.user1.pk, is_deleted__in=[False]
+        ).first()
 
         # 게시글 수정
         updated_title = f"test update title {post.pk}"
@@ -240,7 +246,9 @@ class PostTestCase(TestCase):
 
         # 타인의 게시글
         # 수정할 게시글
-        post = Post.objects.filter(author_id=self.user2.pk).first()
+        post = Post.objects.filter(
+            author_id=self.user2.pk, is_deleted__in=[False]
+        ).first()
 
         # 게시글 수정
         updated_title = f"test update title {post.pk}"

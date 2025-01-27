@@ -18,7 +18,7 @@ class PostCreateListView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, *args, **kwargs):
-        # validation
+        # validate
         try:
             page = int(self.request.GET.get("page", 1))
             page_size = int(self.request.GET.get("page-size", POST_PAGE_SIZE))

@@ -18,10 +18,18 @@ class PostCreateListView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, *args, **kwargs):
-        page = int(self.request.GET.get("page", 1))
-        page_size = int(self.request.GET.get("page-size", POST_PAGE_SIZE))
-        order_by = self.request.GET.get("order-by", "newest")
-        author_id = self.request.GET.get("author-id", None)
+        # validation
+        try:
+            page = int(self.request.GET.get("page", 1))
+            page_size = int(self.request.GET.get("page-size", POST_PAGE_SIZE))
+            order_by = self.request.GET.get("order-by", "newest")
+            author_id = self.request.GET.get("author-id", None)
+            if author_id:
+                author_id = int(author_id)
+        except ValueError:
+            raise response_exceptions.BadRequest(
+                **common_exception_data.HTTP_400_INPUT_VALIDATION_ERROR
+            )
 
         queryset_kwargs = {
             "page": page,

@@ -16,6 +16,8 @@ class PostService(BaseService):
         return response_data
 
     def get_post_set(self, **filter):
+        order_by = filter["order_by"]
+        filter["order_by"] = self._convert_order_by(order_by)
         filter["is_deleted__in"] = [False]
         queryset = self.get_queryset(**filter)
         response_data = self._list_data_serializer(queryset)
@@ -48,3 +50,12 @@ class PostService(BaseService):
     def _list_data_serializer(self, queryset):
         results = [self._instance_serializer(post) for post in queryset]
         return {"results": results}
+
+    def _convert_order_by(self, order_by: str) -> str:
+        if order_by == "newest":
+            result = "-id"
+        elif order_by == "oldest":
+            result = "id"
+        else:
+            raise exceptions.ValidationError
+        return result

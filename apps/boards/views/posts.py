@@ -20,7 +20,7 @@ class PostCreateListView(APIView):
     def get(self, request, *args, **kwargs):
         page = int(self.request.GET.get("page", 1))
         page_size = int(self.request.GET.get("page-size", POST_PAGE_SIZE))
-        order_by = "-id"
+        order_by = self.request.GET.get("order-by", "newest")
         author_id = self.request.GET.get("author-id", None)
 
         queryset_kwargs = {
@@ -32,8 +32,13 @@ class PostCreateListView(APIView):
             queryset_kwargs["author_id"] = author_id
 
         # service
-        post_service = PostService()
-        response_data = post_service.get_post_set(**queryset_kwargs)
+        try:
+            post_service = PostService()
+            response_data = post_service.get_post_set(**queryset_kwargs)
+        except exceptions.ValidationError:
+            raise response_exceptions.BadRequest(
+                **common_exception_data.HTTP_400_INPUT_VALIDATION_ERROR
+            )
 
         return Response(status=status.HTTP_200_OK, data=response_data)
 

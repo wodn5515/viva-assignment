@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework import status
-from apps.boards.validations.posts import CreatePost
+from apps.boards.validations.posts import CreatePost, UpdatePost
 from apps.boards.validations import exceptions
 from apps.boards.validations import exception_data
 from apps.utils import exceptions as response_exceptions
@@ -107,16 +107,25 @@ class PostRetrieveUpdateDeleteView(APIView):
     def patch(self, request, *args, **kwargs):
         request_data = request.data
         request_data["updated_at"] = datetime.now()
-        post_id = kwargs.get("post_id")
-        user = self.request.user
+        request_data["post_id"] = kwargs.get("post_id")
+        request_data["request_user_id"] = self.request.user.pk
+
+        # validate
+        try:
+            data = UpdatePost(**request_data)
+        except exceptions.TitleTooLing:
+            raise response_exceptions.BadRequest(
+                **exception_data.HTTP_400_TITLE_TOO_LONG
+            )
+        except ValidationError:
+            raise response_exceptions.BadRequest(
+                **common_exception_data.HTTP_400_INPUT_VALIDATION_ERROR
+            )
 
         # service
         try:
             post_service = PostService()
-            post_service.check_ownership(
-                user_id=user.pk, instance_id=post_id, user_field="author_id"
-            )
-            response_data = post_service.update_post(id=post_id, **request_data)
+            response_data = post_service.update_post(data=data)
         except response_exceptions.NotFound:
             raise response_exceptions.NotFound(**exception_data.HTTP_404_POST_NOT_FOUND)
 

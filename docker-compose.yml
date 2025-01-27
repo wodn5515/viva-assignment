@@ -21,7 +21,6 @@ services:
   mongo:
     image: mongo:6.0.20
     container_name: mongo
-    env_file: .env
     restart: always
     ports:
       - 27017:27017
@@ -37,7 +36,6 @@ services:
   mongo-express:
     image: mongo-express:latest
     container_name: mongo-express
-    env_file: .env
     restart: always
     ports:
       - 8081:8081
@@ -53,10 +51,21 @@ services:
       context: .
       dockerfile: dockerfile
     container_name: web
-    env_file: .env
     restart: always
     ports:
       - 8000:8000
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_SETTINGS_MODULE: ${DJANGO_SETTINGS_MODULE}
+      MYSQL_DB_HOST: ${MYSQL_DB_HOST}
+      MYSQL_DB_NAME: ${MYSQL_DB_NAME}
+      MYSQL_DB_USERNAME: ${MYSQL_DB_USERNAME}
+      MYSQL_DB_PASSWORD: ${MYSQL_DB_PASSWORD}
+      MYSQL_DB_PORT: ${MYSQL_DB_PORT}
+      MONGO_DB_NAME: ${MONGO_DB_NAME}
+      MONGO_DB_HOST: ${MONGO_DB_HOST}
+      MONGO_DB_USERNAME: ${MONGO_DB_USERNAME}
+      MONGO_DB_PASSWORD: ${MONGO_DB_PASSWORD}
     command: >
       sh -c "python manage.py wait_for_db &&
               python manage.py migrate &&

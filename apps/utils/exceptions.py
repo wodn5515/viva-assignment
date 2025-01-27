@@ -11,7 +11,7 @@ class BadRequest(APIException):
 
 class AuthenticationFailed(APIException):
     status_code = status.HTTP_401_UNAUTHORIZED
-    default_detail = _("ID/PW가 올바르지 않습니다.")
+    default_detail = _("이메일 또는 비밀번호가 올바르지 않습니다.")
     default_code = "AUTHENTICATED_FAILED"
 
 

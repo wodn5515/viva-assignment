@@ -6,15 +6,19 @@ from datetime import datetime
 class BaseService:
     page_size = settings.DEFAULT_PAGE_SIZE
 
-    def get_object(self, id: int, **filter):
+    def get_object(self, **filter):
         try:
-            instance = self.model.objects.filter(**filter).get(id=id)
+            instance = self.model.objects.filter(**filter).get()
         except self.model.DoesNotExist:
             raise NotFound()
         return instance
 
-    def update_object(self, id: int, filter: dict, **kwargs):
-        self.model.objects.filter(id=id, **filter).update(**kwargs)
+    def get_objects(self, **filter):
+        objects = self.model.objects.filter(**filter)
+        return objects
+
+    def update_objects(self, filter: dict, **kwargs):
+        self.model.objects.filter(**filter).update(**kwargs)
 
     def soft_delete_by_id(self, id: int):
         self.model.objects.filter(id=id).update(
@@ -25,7 +29,8 @@ class BaseService:
         self.model.objects.filter(id=id).delete()
 
     def check_ownership(self, user_id: int, instance_id: int, user_field: str):
-        instance = self.get_object(id=instance_id)
+        get_filter = {"id": instance_id}
+        instance = self.get_object(**get_filter)
         if user_id != getattr(instance, user_field):
             raise PermissionDenied
 

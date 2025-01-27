@@ -1,10 +1,10 @@
 from django.urls import path
 from apps.boards.views.posts import (
-    PostCreateRetrieveView,
-    PostDetailUpdateDeleteView,
+    PostCreateListView,
+    PostRetrieveUpdateDeleteView,
 )
 
 urlpatterns = [
-    path("posts", PostCreateRetrieveView.as_view()),
-    path("posts/<int:post_id>", PostDetailUpdateDeleteView.as_view()),
+    path("posts", PostCreateListView.as_view()),
+    path("posts/<int:post_id>", PostRetrieveUpdateDeleteView.as_view()),
 ]

@@ -14,7 +14,7 @@ from datetime import datetime
 POST_PAGE_SIZE = 10
 
 
-class PostCreateRetrieveView(APIView):
+class PostCreateListView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, *args, **kwargs):
@@ -60,7 +60,7 @@ class PostCreateRetrieveView(APIView):
         return Response(status=status.HTTP_201_CREATED, data=response_data)
 
 
-class PostDetailUpdateDeleteView(APIView):
+class PostRetrieveUpdateDeleteView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, *args, **kwargs):

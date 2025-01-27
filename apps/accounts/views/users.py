@@ -51,7 +51,7 @@ class SignUpAPIView(APIView):
                 **exception_data.HTTP_400_ALREADY_SIGNED_UP_EMAIL
             )
 
-        return Response(status=status.HTTP_200_OK, data=response_data)
+        return Response(status=status.HTTP_201_CREATED, data=response_data)
 
 
 class LoginView(APIView):

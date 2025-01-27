@@ -25,7 +25,7 @@ class AccountTestCase(TestCase):
         )
 
         # 검증
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data["email"], email)
         self.assertEqual(response.data["name"], name)
         self.assertTrue(response.data["is_active"])

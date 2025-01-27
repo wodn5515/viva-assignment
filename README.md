@@ -282,8 +282,6 @@
   ```
 - Error
   - access token 로그인 실패시
-  ```
-  - access token 로그인 실패시
   ```json
   {
     "status": 401,
@@ -419,8 +417,6 @@ author-id: int # 작성자 user_id로 검색
   ```
 - Error
   - access token 로그인 실패시
-  ```
-  - access token 로그인 실패시
   ```json
   {
     "status": 401,
@@ -491,8 +487,6 @@ author-id: int # 작성자 user_id로 검색
   }
   ```
 - Error
-  - access token 로그인 실패시
-  ```
   - access token 로그인 실패시
   ```json
   {

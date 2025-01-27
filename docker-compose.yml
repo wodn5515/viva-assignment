@@ -66,6 +66,8 @@ services:
       MONGO_DB_HOST: ${MONGO_DB_HOST}
       MONGO_DB_USERNAME: ${MONGO_DB_USERNAME}
       MONGO_DB_PASSWORD: ${MONGO_DB_PASSWORD}
+      MYSQL_ROOT_USERNAME: ${MYSQL_ROOT_USERNAME}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     command: >
       sh -c "python manage.py wait_for_db &&
               python manage.py migrate &&
